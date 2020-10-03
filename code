@@ -1,0 +1,114 @@
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <iostream>
+
+using namespace std;
+using namespace cv;
+
+class image
+{
+private:
+	Mat input;
+	
+
+	
+public:
+	Mat output;
+	Mat channel[3];
+	Mat r;
+	Mat g;
+	Mat b;
+	double maxVal;
+	double minVal;
+	int imageSizeRow;
+	int imageSizeColum;
+	
+	void getData (Mat image) // get input image
+	{	
+		input = image;
+		if (input.empty())
+		{
+			cout << "Image not found"<<endl;
+		}
+		else
+		{
+			cout << "Image Is found"<<endl;
+			imageSizeRow = image.rows;
+			imageSizeColum = image.cols;
+			cout << "image Size : " << imageSizeColum << "x" << imageSizeRow<<"  pixels"<< endl;
+		}
+		
+
+	}
+	void displayData() // display intput and output image
+	{
+		namedWindow("Input");
+		imshow("Input", input);
+		namedWindow("Output");
+		imshow("Output", output);
+		
+	}
+	void splitter() //split RGB image out to their own band
+	{
+		split(input, channel);
+	
+		channel[0].convertTo(b, CV_64FC1);
+		channel[1].convertTo(g, CV_64FC1);
+		channel[2].convertTo(r, CV_64FC1);
+	}
+	void vari() //calculate by vari equation
+	{
+		output = (g - r) / (g + r - b);
+	}
+	void table()
+	{
+		int x = 0, y = 0;
+		if(x<=imageSizeColum)
+		{
+			while(x<=imageSizeColum)
+			{
+				x = x + 200;
+				Point start(x, 0), end(x, imageSizeRow);
+				line(output, start, end, Scalar(0, 0, 0), 3, LINE_8);
+			}
+		}
+		if (y <= imageSizeRow)
+		{
+			while(y <= imageSizeRow)
+			{
+				y = y + 200;
+				Point start(0, y), end(imageSizeColum,y);
+				line(output, start, end, Scalar(0, 0, 0), 3, LINE_8);
+			}
+		}
+	}
+	
+};
+
+void MyLine(Mat img, Point start, Point end);
+
+
+
+int main(int argc, char** argv)
+{
+	image img;
+	
+	Mat Input = imread("E:/learning opencv/palm1.jpg");
+	img.getData(Input);
+	img.splitter();
+	img.vari();
+	img.table();
+	img.displayData();
+	
+	
+	waitKey();
+	return 0;
+}
+
+
+void MyLine(Mat img, Point start, Point end)
+{	
+	int thickness = 2;
+	int lineType = LINE_8;
+	line(img,start,end,Scalar(0, 0, 0),thickness,lineType);
+}
